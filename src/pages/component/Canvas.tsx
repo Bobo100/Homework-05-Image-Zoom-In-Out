@@ -59,7 +59,11 @@ export default function Canvas(props: { src: string }) {
             //     startDragging = false;
             // };
 
-            const handleWheel = (e: any) => {
+            const handleWheel = (e: WheelEvent) => {
+                // Math.sign(e.deltaY) 是JavaScript的內建方法，當滾輪滑動時，它會回傳一個數字：
+                // 如果滾輪往上滾，就會回傳 - 1
+                // 如果滾輪沒有滾，不會回傳任何值
+                // 如果滾輪往下滾，就會回傳 1
                 const delta = Math.sign(e.deltaY);
                 // scaleFactor 要在 0.2 ~ 3 之間 原因是因為圖片太小或太大會讓圖片消失
                 if ((scaleFactor < 3 && delta > 0) || (scaleFactor > 0.2 && delta < 0)) {
@@ -80,6 +84,9 @@ export default function Canvas(props: { src: string }) {
             // canvas.addEventListener("mousedown", handleMouseDown);
             // canvas.addEventListener("mousemove", handleMouseMove);
             // canvas.addEventListener("mouseup", handleMouseUp);
+
+            // 新增canvas的滾輪事件
+            // passive: true 代表不會阻止事件的預設行為
             canvas.addEventListener("wheel", handleWheel, { passive: true });
         };
     }, [props.src]);
