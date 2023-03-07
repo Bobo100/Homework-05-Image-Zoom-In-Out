@@ -1,5 +1,5 @@
 // Canvas 用來顯示圖片
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ZoomControls } from "./CanvasControls";
 export default function Canvas(props: { src: string }) {
     // const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -96,6 +96,9 @@ export default function Canvas(props: { src: string }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [scaleFactor, setScaleFactor] = useState(1);
 
+    const maxScaleFactor = 3;
+    const minScaleFactor = 0.2;
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) {
@@ -123,9 +126,10 @@ export default function Canvas(props: { src: string }) {
         };
 
         const handleWheel = (e: WheelEvent) => {
-            const delta = Math.sign(e.deltaY);
-            if ((scaleFactor < 3 && delta > 0) || (scaleFactor > 0.2 && delta < 0)) {
-                setScaleFactor((prevScale) => prevScale - delta * 0.1);
+            // e.preventDefault();
+            const delta = -Math.sign(e.deltaY);
+            if ((scaleFactor < maxScaleFactor && delta > 0) || (scaleFactor > minScaleFactor && delta < 0)) {
+                setScaleFactor((prevScale) => prevScale + delta * 0.1);
             }
         };
 
@@ -138,13 +142,13 @@ export default function Canvas(props: { src: string }) {
     }, [props.src, scaleFactor]);
 
     const handleZoomIn = () => {
-        if (scaleFactor < 3) {
+        if (scaleFactor < maxScaleFactor) {
             setScaleFactor((prevScale) => prevScale + 0.1);
         }
     };
 
     const handleZoomOut = () => {
-        if (scaleFactor > 0.2) {
+        if (scaleFactor > minScaleFactor) {
             setScaleFactor((prevScale) => prevScale - 0.1);
         }
     };
