@@ -122,6 +122,13 @@ export default function Canvas(props: { src: string }) {
             ctx.drawImage(img, -img.width / 2, -img.height / 2);
         };
 
+        const handleWheel = (e: WheelEvent) => {
+            const delta = Math.sign(e.deltaY);
+            if ((scaleFactor < 3 && delta > 0) || (scaleFactor > 0.2 && delta < 0)) {
+                setScaleFactor((prevScale) => prevScale - delta * 0.1);
+            }
+        };
+
         canvas.addEventListener("wheel", handleWheel, { passive: true });
 
         return () => {
@@ -141,14 +148,6 @@ export default function Canvas(props: { src: string }) {
             setScaleFactor((prevScale) => prevScale - 0.1);
         }
     };
-
-    const handleWheel = (e: WheelEvent) => {
-        const delta = Math.sign(e.deltaY);
-        if ((scaleFactor < 3 && delta > 0) || (scaleFactor > 0.2 && delta < 0)) {
-            setScaleFactor((prevScale) => prevScale - delta * 0.1);
-        }
-    };
-
 
     return <>
         <canvas ref={canvasRef} />
