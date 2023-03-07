@@ -13,7 +13,10 @@ export const Home = () => {
     return (
         <div className="home">
             {imageData && <Canvas src={imageData} />}
-            <InputFile labelId="file" placeholderText="Choose a file" onChange={handleFileChange} />
+            {!imageData && <div className="home__placeholder">Please select an image</div>}
+            {!imageData && <InputFile labelId="file" placeholderText="Choose a file" onChange={handleFileChange} />}
+            {/* <InputFile labelId="file" placeholderText="Choose a file" onChange={handleFileChange} /> */}
+
         </div>
     );
 };
