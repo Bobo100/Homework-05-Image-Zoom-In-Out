@@ -8,6 +8,9 @@ export default function CanvasAdv(props: { src: string }) {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [scaleFactor, setScaleFactor] = useState(1);
+    // 这里假设我们使用useState Hook来存储上一个鼠标位置。
+    const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
+
 
     // 紀錄滑鼠的位置
     const [mousepos, setMousepos] = useState({ x: 0, y: 0 });
@@ -44,8 +47,12 @@ export default function CanvasAdv(props: { src: string }) {
 
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
-            ctx.translate(centerX, centerY);
-            // ctx.translate(mousepos.x, mousepos.y);
+            if (mousepos.x === 0 && mousepos.y === 0) {
+                ctx.translate(centerX, centerY);
+            } else {
+                ctx.translate(mousepos.x, mousepos.y);
+            }
+
             ctx.scale(scaleFactor, scaleFactor);
 
             // 繪製圖像
@@ -83,10 +90,17 @@ export default function CanvasAdv(props: { src: string }) {
             const mouseX = (canvasX - centerX)
             const mouseY = (canvasY - centerY)
 
-            setMousepos({ x: mouseX, y: mouseY });
+            // 计算偏移量
+            const offsetX = mouseX - lastMousePos.x;
+            const offsetY = mouseY - lastMousePos.y;
+
+            console.log(offsetX, offsetY)
+
+            setMousepos({ x: offsetX, y: offsetY });
 
             if (newScaleFactor !== scaleFactor) {
                 setScaleFactor(newScaleFactor);
+                setLastMousePos({ x: mouseX, y: mouseY });
             }
         };
 
