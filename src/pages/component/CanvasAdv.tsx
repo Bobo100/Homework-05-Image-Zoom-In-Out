@@ -4,14 +4,14 @@ import { ZoomControls } from "./CanvasControls";
 import { Decimal } from "decimal.js"
 import Scrollbar from "./Scrollbar";
 import "./css/Canvas.scss"
-export default function Canvas(props: { src: string }) {
+export default function CanvasAdv(props: { src: string }) {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [scaleFactor, setScaleFactor] = useState(1);
-    // const [lastTime, setLastTime] = useState(0);
+    const [translate, setTranslate] = useState({ x: 0, y: 0 });
 
     const maxScaleFactor = 3;
-    const minScaleFactor = 0.2;
+    const minScaleFactor = 1;
     // 設定小數點位數
     Decimal.set({ precision: 10 });
 
@@ -34,63 +34,41 @@ export default function Canvas(props: { src: string }) {
 
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
-            ctx.translate(centerX, centerY);
+            ctx.translate(centerX + translate.x, centerY + translate.y);
             ctx.scale(scaleFactor, scaleFactor);
-
             // 繪製圖像
             ctx.drawImage(img, -img.width / 2, -img.height / 2);
         };
-
-        /* 
-        原始版本 (出現問題)
-        問題出現於當連續觸發時，setScaleFactor被呼叫並使用前一個scaleFactor的值。
-        因此，如果沒有實際變化，就會連續使用同樣的值，最終導致圖片變得非常小。
-        */
-
-        // const handleWheel = (e: WheelEvent) => {
-        // e.preventDefault();
-        //     const delta = -Math.sign(e.deltaY);
-        //     console.log("delta", delta, "scaleFactor", scaleFactor);
-
-        //     if ((scaleFactor < maxScaleFactor && delta > 0) || (scaleFactor > minScaleFactor && delta < 0)) {
-        //         setScaleFactor((prevScale) => new Decimal(prevScale).plus(delta * 0.1).toNumber());
-        //         // setScaleFactor((prevScale) => +((prevScale + delta * 0.1).toFixed(2)));
-        //     }
-        // };
-
-        // 在更新scaleFactor之前使用一個變量保存上一個值，然後檢查新值是否有變化。如果它有所改變，才更新狀態。
-        // 這樣做的好處是，我們可以在更新狀態之前檢查新值是否有變化，如果沒有變化，就不會觸發重新渲染。
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
             const delta = -Math.sign(e.deltaY);
-            // Math.sign(e.deltaY) 是JavaScript的內建方法，當滾輪滑動時，它會回傳一個數字：
-            // 如果滾輪往上滾，就會回傳 - 1
-            // 如果滾輪沒有滾，不會回傳任何值
-            // 如果滾輪往下滾，就會回傳 1
             let newScaleFactor = scaleFactor;
             if ((scaleFactor < maxScaleFactor && delta > 0) || (scaleFactor > minScaleFactor && delta < 0)) {
                 newScaleFactor = new Decimal(scaleFactor).plus(delta * 0.1).toNumber();
             }
 
+            // 這裡是重點
+            // 計算滑鼠位置
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // 計算圖像座標中滑鼠的位置
+            const imageX = x - img.width / 2;
+            const imageY = y - img.height / 2;
+
+            // 使用新的放大倍率計算位移量
+            let offsetX = imageX * (scaleFactor - 1);
+            let offsetY = imageY * (scaleFactor - 1);
+
+
             if (newScaleFactor !== scaleFactor) {
                 setScaleFactor(newScaleFactor);
+                setTranslate({ x: offsetX, y: offsetY });
+
+                console.log(offsetX, offsetY)
             }
         };
-
-        /* 用時間來限制觸發次數
-         一秒只能觸發一次 但這樣做的效果很差 */
-        // const handleWheel = (e: WheelEvent) => {
-        //     const delta = -Math.sign(e.deltaY);
-        //     const now = Date.now();
-        //     if (now - lastTime >= 1000 && ((scaleFactor < maxScaleFactor && delta > 0) || (scaleFactor > minScaleFactor && delta < 0))) { // 时间间隔大于等于1秒
-        //         setScaleFactor((prevScale) => new Decimal(prevScale).plus(delta * 0.1).toNumber());
-        //         setLastTime(now);
-        //     }
-        // };
-
-
-        // 否則等待重繪周期。
-        // window.requestAnimationFrame(handler);
 
         canvas.addEventListener("wheel", handleWheel);
 
@@ -98,7 +76,7 @@ export default function Canvas(props: { src: string }) {
             canvas.removeEventListener("wheel", handleWheel);
         };
 
-    }, [props.src, scaleFactor]);
+    }, [props.src, scaleFactor, translate.x, translate.y]);
 
     const handleZoomIn = () => {
         if (scaleFactor < maxScaleFactor) {
