@@ -58,18 +58,7 @@ export default function CanvasAdv(props: { src: string }) {
                 newScaleFactor = new Decimal(scaleFactor).plus(delta * 0.1).toNumber();
             }
 
-<<<<<<< Updated upstream
-            /* 這裡是重點
-            1. 我們需要獲取滑鼠在畫布上的位置
-            2. 我們要知道滑鼠在畫布上的位置在縮放後的位置 (縮放的value {newScaleFactor})
-            3. 我們要知道滑鼠在畫布上的位置在縮放前的位置和縮放後的位置的差值
-    
 
-            */
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top
-=======
             // 紀錄滑鼠的位置
             const rect = canvas.getBoundingClientRect();
 
@@ -78,7 +67,6 @@ export default function CanvasAdv(props: { src: string }) {
 
             const x = e.clientX;
             const y = e.clientY;
->>>>>>> Stashed changes
 
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
@@ -96,15 +84,9 @@ export default function CanvasAdv(props: { src: string }) {
 
             setMousepos({ x: mouseX, y: mouseY });
 
-<<<<<<< Updated upstream
-            setScaleFactor(newScaleFactor);
-
-
-=======
             if (newScaleFactor !== scaleFactor) {
                 setScaleFactor(newScaleFactor);
             }
->>>>>>> Stashed changes
         };
 
         canvas.addEventListener("wheel", handleWheel);
