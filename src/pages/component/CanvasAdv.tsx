@@ -45,6 +45,7 @@ export default function CanvasAdv(props: { src: string }) {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
             ctx.translate(centerX, centerY);
+            // ctx.translate(mousepos.x, mousepos.y);
             ctx.scale(scaleFactor, scaleFactor);
 
             // 繪製圖像
