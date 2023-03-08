@@ -47,27 +47,21 @@ export default function CanvasAdv(props: { src: string }) {
                 newScaleFactor = new Decimal(scaleFactor).plus(delta * 0.1).toNumber();
             }
 
-            // 這裡是重點
-            // 計算滑鼠位置
+            /* 這裡是重點
+            1. 我們需要獲取滑鼠在畫布上的位置
+            2. 我們要知道滑鼠在畫布上的位置在縮放後的位置 (縮放的value {newScaleFactor})
+            3. 我們要知道滑鼠在畫布上的位置在縮放前的位置和縮放後的位置的差值
+    
+
+            */
             const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            // 計算圖像座標中滑鼠的位置
-            const imageX = x - img.width / 2;
-            const imageY = y - img.height / 2;
-
-            // 使用新的放大倍率計算位移量
-            let offsetX = imageX * (scaleFactor - 1);
-            let offsetY = imageY * (scaleFactor - 1);
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top
 
 
-            if (newScaleFactor !== scaleFactor) {
-                setScaleFactor(newScaleFactor);
-                setTranslate({ x: offsetX, y: offsetY });
+            setScaleFactor(newScaleFactor);
 
-                console.log(offsetX, offsetY)
-            }
+
         };
 
         canvas.addEventListener("wheel", handleWheel);
