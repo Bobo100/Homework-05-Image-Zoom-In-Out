@@ -1,6 +1,7 @@
 // Canvas 用來顯示圖片
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ZoomControls } from "./CanvasControls";
+import { Decimal } from "decimal.js"
 export default function Canvas(props: { src: string }) {
     // const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -98,6 +99,8 @@ export default function Canvas(props: { src: string }) {
 
     const maxScaleFactor = 3;
     const minScaleFactor = 0.2;
+    // 設定小數點位數
+    Decimal.set({ precision: 10 });
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -129,7 +132,10 @@ export default function Canvas(props: { src: string }) {
             // e.preventDefault();
             const delta = -Math.sign(e.deltaY);
             if ((scaleFactor < maxScaleFactor && delta > 0) || (scaleFactor > minScaleFactor && delta < 0)) {
-                setScaleFactor((prevScale) => prevScale + delta * 0.1);
+                setScaleFactor((prevScale) => new Decimal(prevScale).plus(delta * 0.1).toNumber());
+                // setScaleFactor((prevScale) => +((prevScale + delta * 0.1).toFixed(2)));
+
+
             }
         };
 

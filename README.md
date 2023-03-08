@@ -4,6 +4,8 @@
 
 使用作業(四)的Canvas，在其基礎上加上zoom in/zoom out功能
 
+需要解決精度問題 (使用decimal.js解決)
+
 延伸
 
 - [ ] 新增drag功能 (滑鼠拖曳圖片功能)
