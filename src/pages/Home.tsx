@@ -13,18 +13,16 @@ export const Home = () => {
 
     return (
         <div className="home">
-            <h1>中心點縮放</h1>
-            {imageData && <Canvas src={imageData} />}
-            <h1>根據滑鼠位置縮放</h1>
+            {imageData && <h1>中心點縮放</h1>}
+            {imageData &&
+                <Canvas src={imageData} />}
+            {imageData && <h1>根據滑鼠位置縮放</h1>}
             {imageData && <CanvasMousePositionMove src={imageData} />}
-            <h1>拖曳</h1>
+            {imageData && <h1>可拖曳</h1>}
             {imageData && <CanvasDrag src={imageData} />}
 
             {!imageData && <div className="home__placeholder">Please select an image</div>}
             <InputFile labelId="file" placeholderText="Choose a file" onChange={handleFileChange} />
-
-
-
         </div>
     );
 };

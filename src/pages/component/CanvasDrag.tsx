@@ -14,7 +14,8 @@ export default function CanvasDrag(props: { src: string }) {
     const [mouseposInCanvas, setMouseposInCanvas] = useState({ x: 0, y: 0 });
     // 滑鼠在Canvas中的座標 到 中心點 的距離
     const [mouseposInCanvasToCenter, setMouseposInCanvasToCenter] = useState({ x: 0, y: 0 });
-    // 記錄抓取的偏移量
+
+    // 保存偏移量
     const [offset, setOffset] = useState({ x: 0, y: 0 });
 
     const maxScaleFactor = 3;
@@ -43,8 +44,10 @@ export default function CanvasDrag(props: { src: string }) {
 
             ctx.transform(1, 0, 0, 1, centerX, centerY);
             ctx.translate(mouseposInCanvasToCenter.x, mouseposInCanvasToCenter.y);
+            // ctx.translate(offset.x, offset.y);
             ctx.scale(scaleFactor, scaleFactor); // 調整縮放比例
             ctx.translate(-mouseposInCanvasToCenter.x, -mouseposInCanvasToCenter.y);
+            // ctx.translate(-offset.x, -offset.y);
             ctx.drawImage(img, -centerX, -centerY);
         };
 
@@ -65,8 +68,8 @@ export default function CanvasDrag(props: { src: string }) {
                 const mouseposInCanvasX = Number(mouseposInCanvasXS);
                 const mouseposInCanvasY = Number(mouseposInCanvasYS);
                 setMouseposInCanvasToCenter({
-                    x: mouseposInCanvasX - centerX,
-                    y: mouseposInCanvasY - centerY
+                    x: mouseposInCanvasX - centerX + offset.x,
+                    y: mouseposInCanvasY - centerY + offset.y
                 });
 
                 setScaleFactor(newScaleFactor);
@@ -99,7 +102,51 @@ export default function CanvasDrag(props: { src: string }) {
             const mouseposInCanvasY = Number(mouseposInCanvasYS);
 
             setMousepos({ x: e.offsetX, y: e.offsetY });
-            setMouseposInCanvas({ x: mouseposInCanvasX, y: mouseposInCanvasY });           
+            setMouseposInCanvas({ x: mouseposInCanvasX, y: mouseposInCanvasY });
+
+            if (isDragging) {
+                console.log("dragging");
+                // 計算滑鼠移動的距離，在瀏覽器中的距離
+                const offsetX = new Decimal(e.offsetX).minus(lastMousePos.x).toFixed(2);
+                const offsetY = new Decimal(e.offsetY).minus(lastMousePos.y).toFixed(2);
+
+                // 將offset轉換成在Canvas中的座標
+                const offsetXInCanvas = new Decimal(offsetX)
+                    .times(canvas.width)
+                    .dividedBy(canvasBox.width)
+                    .toFixed(2);
+                const offsetYInCanvas = new Decimal(offsetY)
+                    .times(canvas.height)
+                    .dividedBy(canvasBox.height)
+                    .toFixed(2);
+                const offsetXInCanvasN = Number(offsetXInCanvas);
+                const offsetYInCanvasN = Number(offsetYInCanvas);
+
+                setOffset({ x: offsetXInCanvasN, y: offsetYInCanvasN });
+
+                // 重新畫圖
+                const ctx = canvas.getContext("2d");
+                if (!ctx) {
+                    return;
+                }
+
+                // 記錄最後滑鼠位置
+                lastMousePos = { x: e.offsetX, y: e.offsetY };
+
+                // 繪製圖像
+                // 步驟：
+                // 1. 儲存目前的狀態
+                // ctx.save();
+                // 2. 清空畫布
+                ctx.clearRect(-centerX, -centerY, canvas.width, canvas.height);
+                // 3. 移動座標系統
+                ctx.translate(offsetXInCanvasN, offsetYInCanvasN);
+                // 4. 繪製圖像
+                ctx.drawImage(img, -centerX, -centerY);
+                // 5. 恢復狀態
+                // ctx.restore();
+
+            }
         };
 
         canvas.addEventListener("mousemove", handleMouseMove);
