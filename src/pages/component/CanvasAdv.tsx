@@ -50,8 +50,11 @@ export default function CanvasAdv(props: { src: string }) {
             if (mousepos.x === 0 && mousepos.y === 0) {
                 ctx.translate(centerX, centerY);
             } else {
+                ctx.translate(centerX, centerY);
                 ctx.translate(mousepos.x, mousepos.y);
             }
+
+            // console.log(mousepos)
 
             ctx.scale(scaleFactor, scaleFactor);
 
@@ -79,28 +82,29 @@ export default function CanvasAdv(props: { src: string }) {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
 
-            // 滑鼠在 Canvas 元素上的坐标
+            // 縮放前的滑鼠在畫布的位置，或是 畫布上的滑鼠位置
             const canvasX = (x - rect.left) * scaleX;
             const canvasY = (y - rect.top) * scaleY;
+            console.log("縮放前的滑鼠在畫布的位置，或是", canvasX, canvasY)
+            setMousepos({ x: canvasX, y: canvasY });
 
 
-            // 考虑到缩放比例和 translate 平移影响后的坐标
-
-            // 滑鼠在 Canvas 元素上的坐标
+            // 滑鼠在圖片中的坐標
             const mouseX = (canvasX - centerX)
             const mouseY = (canvasY - centerY)
+            console.log("滑鼠在圖片中的坐標", mouseX, mouseY)
+            setMouseposInImage({ x: mouseX, y: mouseY });
 
-            // 计算偏移量
-            const offsetX = mouseX - lastMousePos.x;
-            const offsetY = mouseY - lastMousePos.y;
 
-            console.log(offsetX, offsetY)
-
-            setMousepos({ x: offsetX, y: offsetY });
 
             if (newScaleFactor !== scaleFactor) {
+
+                // 獲得新的滑鼠在圖片中的坐標，這標是經過縮放後的。會是新的中心點的座標?
+                const newMouseX = mouseX * newScaleFactor / scaleFactor
+                const newMouseY = mouseY * newScaleFactor / scaleFactor
+
                 setScaleFactor(newScaleFactor);
-                setLastMousePos({ x: mouseX, y: mouseY });
+
             }
         };
 
