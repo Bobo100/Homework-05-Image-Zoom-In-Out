@@ -66,15 +66,20 @@ export default function CanvasMousePositionMove(props: { src: string }) {
 
         const handleMouseMove = (e: MouseEvent) => {
             const canvasBox = canvas.getBoundingClientRect();
-            const mouseposInCanvasX = e.offsetX * (canvas.width / canvasBox.width);
-            const mouseposInCanvasY = e.offsetY * (canvas.height / canvasBox.height);
+            // const mouseposInCanvasX = new Decimal(e.offsetX).times(canvas.width).dividedBy(canvasBox.width).toNumber();
+            // const mouseposInCanvasY = new Decimal(e.offsetY).times(canvas.height).dividedBy(canvasBox.height).toNumber();
+            
+            const mouseposInCanvasXS = new Decimal(e.offsetX).times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
+            const mouseposInCanvasYS = new Decimal(e.offsetY).times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
+            const mouseposInCanvasX = Number(mouseposInCanvasXS);
+            const mouseposInCanvasY = Number(mouseposInCanvasYS);
 
+            setMousepos({ x: e.offsetX, y: e.offsetY });
+            setMouseposInCanvas({ x: mouseposInCanvasX, y: mouseposInCanvasY });
             setMouseposInCanvasToCenter({
                 x: mouseposInCanvasX - centerX,
                 y: mouseposInCanvasY - centerY
             });
-            setMousepos({ x: e.offsetX, y: e.offsetY });
-            setMouseposInCanvas({ x: mouseposInCanvasX, y: mouseposInCanvasY });
         };
 
         canvas.addEventListener("mousemove", handleMouseMove);
@@ -89,7 +94,7 @@ export default function CanvasMousePositionMove(props: { src: string }) {
             canvas.removeEventListener("wheel", handleWheel);
         };
 
-    }, [mouseposInCanvasToCenter.x, mouseposInCanvasToCenter.y, props.src, scaleFactor]);
+    }, [props.src, scaleFactor]);
 
     const handleZoomIn = () => {
         if (scaleFactor < maxScaleFactor) {
@@ -110,12 +115,12 @@ export default function CanvasMousePositionMove(props: { src: string }) {
     return (
         <div className="margin">
             <div className="flex center">
-                滑鼠在瀏覽器中的座標:
+                <p>滑鼠在瀏覽器中的座標:</p>
                 <div className="margin">X: {mousepos.x}</div>
                 <div className="margin">Y: {mousepos.y}</div>
             </div>
             <div className="flex center">
-                滑鼠在Canvas中的座標:
+                <p>滑鼠在Canvas中的座標:</p>
                 <div className="margin">X: {mouseposInCanvas.x}</div>
                 <div className="margin">Y: {mouseposInCanvas.y}</div>
             </div>

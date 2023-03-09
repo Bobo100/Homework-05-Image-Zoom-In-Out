@@ -17,11 +17,14 @@ export const Home = () => {
             <h1>根據滑鼠位置縮放</h1>
             {imageData && <CanvasMousePositionMove src={imageData} />}
 
-            {!imageData && <div className="home__placeholder">Please select an image</div>}
+            {/* {!imageData && <div className="home__placeholder">Please select an image</div>} */}
 
-            <div className="margin">
+            {/* <div className="margin">
                 <InputFile labelId="file" placeholderText="Choose a file" onChange={handleFileChange} />
-            </div>
+            </div> */}
+
+            <InputFile labelId="file" placeholderText="Choose a file" onChange={handleFileChange} />
+
 
 
         </div>
