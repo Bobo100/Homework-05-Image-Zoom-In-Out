@@ -1,9 +1,8 @@
 // Canvas 用來顯示圖片
 import { useEffect, useRef, useState } from "react";
-import { ZoomControls } from "./CanvasControls";
+import { ZoomControls } from "./ZoomControls";
 import { Decimal } from "decimal.js"
 import Scrollbar from "./Scrollbar";
-import "./css/Canvas.scss"
 export default function Canvas(props: { src: string }) {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);

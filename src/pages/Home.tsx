@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Canvas from "./component/Canvas";
 import InputFile from "./component/InputFile";
+import CanvasMousePositionMove from './component/CanvasMousePositionMove'
 import "./css/Home.scss"
 export const Home = () => {
 
@@ -11,11 +12,16 @@ export const Home = () => {
 
     return (
         <div className="home">
+            <h1>中心點縮放</h1>
             {imageData && <Canvas src={imageData} />}
+            <h1>根據滑鼠位置縮放</h1>
+            {imageData && <CanvasMousePositionMove src={imageData} />}
 
             {!imageData && <div className="home__placeholder">Please select an image</div>}
-            {/* {!imageData && <InputFile labelId="file" placeholderText="Choose a file" onChange={handleFileChange} />} */}
-            <InputFile labelId="file" placeholderText="Choose a file" onChange={handleFileChange} />
+
+            <div className="margin">
+                <InputFile labelId="file" placeholderText="Choose a file" onChange={handleFileChange} />
+            </div>
 
 
         </div>

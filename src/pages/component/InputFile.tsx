@@ -1,5 +1,6 @@
 // input component
 import React from 'react';
+import './css/InputFile.scss';
 
 interface InputFileProps {
     labelId: string;
@@ -20,7 +21,7 @@ const InputFile: React.FC<InputFileProps> = ({ labelId, placeholderText, onChang
     };
 
     return (
-        <input type="file"accept='image/*' id={labelId} placeholder={placeholderText} onChange={handleFileChange} />
+        <input className='border' type="file"accept='image/*' id={labelId} placeholder={placeholderText} onChange={handleFileChange} />
     );
 };
 

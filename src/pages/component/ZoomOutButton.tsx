@@ -1,6 +1,6 @@
 // ZoomOut button component
 
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 export default function ZoomOutButton() {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
