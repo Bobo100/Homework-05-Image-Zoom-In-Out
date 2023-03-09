@@ -58,6 +58,17 @@ export default function CanvasMousePositionMove(props: { src: string }) {
             }
 
             if (newScaleFactor !== scaleFactor) {
+                const canvasBox = canvas.getBoundingClientRect();
+
+                const mouseposInCanvasXS = new Decimal(e.offsetX).times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
+                const mouseposInCanvasYS = new Decimal(e.offsetY).times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
+                const mouseposInCanvasX = Number(mouseposInCanvasXS);
+                const mouseposInCanvasY = Number(mouseposInCanvasYS);
+
+                setMouseposInCanvasToCenter({
+                    x: mouseposInCanvasX - centerX,
+                    y: mouseposInCanvasY - centerY
+                });
                 setScaleFactor(newScaleFactor);
             }
         };
@@ -68,7 +79,7 @@ export default function CanvasMousePositionMove(props: { src: string }) {
             const canvasBox = canvas.getBoundingClientRect();
             // const mouseposInCanvasX = new Decimal(e.offsetX).times(canvas.width).dividedBy(canvasBox.width).toNumber();
             // const mouseposInCanvasY = new Decimal(e.offsetY).times(canvas.height).dividedBy(canvasBox.height).toNumber();
-            
+
             const mouseposInCanvasXS = new Decimal(e.offsetX).times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
             const mouseposInCanvasYS = new Decimal(e.offsetY).times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
             const mouseposInCanvasX = Number(mouseposInCanvasXS);
@@ -76,10 +87,6 @@ export default function CanvasMousePositionMove(props: { src: string }) {
 
             setMousepos({ x: e.offsetX, y: e.offsetY });
             setMouseposInCanvas({ x: mouseposInCanvasX, y: mouseposInCanvasY });
-            setMouseposInCanvasToCenter({
-                x: mouseposInCanvasX - centerX,
-                y: mouseposInCanvasY - centerY
-            });
         };
 
         canvas.addEventListener("mousemove", handleMouseMove);
@@ -94,7 +101,7 @@ export default function CanvasMousePositionMove(props: { src: string }) {
             canvas.removeEventListener("wheel", handleWheel);
         };
 
-    }, [props.src, scaleFactor]);
+    }, [mouseposInCanvasToCenter, props.src, scaleFactor]);
 
     const handleZoomIn = () => {
         if (scaleFactor < maxScaleFactor) {
