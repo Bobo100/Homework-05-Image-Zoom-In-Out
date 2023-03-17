@@ -9,11 +9,6 @@ export default function CanvasMousePositionMoveSmooth(props: { src: string }) {
     const [scaleFactor, setScaleFactor] = useState(1);
     const [image, setImage] = useState<HTMLImageElement | null>(null);
 
-    // 需要紀錄現在滾輪是放大還是縮小的狀態
-    const [isZoomIn, setIsZoomIn] = useState(false);
-    // 紀錄只要圖片還是在放大下的滑鼠最後位置
-    const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
-
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -32,12 +27,13 @@ export default function CanvasMousePositionMoveSmooth(props: { src: string }) {
     }, [props.src]);
 
 
-    // 滑鼠在瀏覽器中的座標
+    // 滑鼠在瀏覽器中的座標 (UI顯示用)
     const [mousepos, setMousepos] = useState({ x: 0, y: 0 });
-    // 滑鼠在Canvas中的座標
+    // 滑鼠在Canvas中的座標 (UI顯示用)
     const [mouseposInCanvas, setMouseposInCanvas] = useState({ x: 0, y: 0 });
     // 滑鼠在Canvas中的座標 到 中心點 的距離
-    const [mouseposInCanvasToCenter, setMouseposInCanvasToCenter] = useState({ x: 0, y: 0 });
+    // 新的圖片中心點
+    const [imageCenter, setimageCenter] = useState({ x: 0, y: 0 });
 
     const maxScaleFactor = 3;
     const minScaleFactor = 1;
@@ -53,23 +49,8 @@ export default function CanvasMousePositionMoveSmooth(props: { src: string }) {
 
         canvas.width = image.width;
         canvas.height = image.height;
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
 
-        // 如果現在滾輪狀態是縮小，且scaleFactor大於最小縮放比例，則用上次放大的滑鼠位置來縮小
-        if (!isZoomIn && scaleFactor > minScaleFactor) {
-            ctx.transform(1, 0, 0, 1, centerX, centerY);
-            ctx.translate(lastMousePos.x, lastMousePos.y);
-            ctx.scale(scaleFactor, scaleFactor); // 調整縮放比例
-            ctx.translate(-lastMousePos.x, -lastMousePos.y);
-            ctx.drawImage(image, -centerX, -centerY);
-        } else {
-            ctx.transform(1, 0, 0, 1, centerX, centerY);
-            ctx.translate(mouseposInCanvasToCenter.x, mouseposInCanvasToCenter.y);
-            ctx.scale(scaleFactor, scaleFactor); // 調整縮放比例
-            ctx.translate(-mouseposInCanvasToCenter.x, -mouseposInCanvasToCenter.y);
-            ctx.drawImage(image, -centerX, -centerY);
-        }
+        draw();
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
@@ -82,23 +63,45 @@ export default function CanvasMousePositionMoveSmooth(props: { src: string }) {
 
             if (newScaleFactor !== scaleFactor) {
                 const canvasBox = canvas.getBoundingClientRect();
+                const centerX = canvasBox.width / 2;
+                const centerY = canvasBox.height / 2;
 
-                const mouseposInCanvasXS = new Decimal(e.offsetX).times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
-                const mouseposInCanvasYS = new Decimal(e.offsetY).times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
-                const mouseposInCanvasX = Number(mouseposInCanvasXS);
-                const mouseposInCanvasY = Number(mouseposInCanvasYS);
 
-                // 紀錄現在滾輪是放大還是縮小的狀態
-                setIsZoomIn(delta > 0);
+                if (newScaleFactor === 1.1 && delta > 0) {
+                    console.log("reset")
+                    setimageCenter({
+                        x: e.offsetX,
+                        y: e.offsetY
+                    });
 
-                if (delta > 0) {
-                    setLastMousePos({ x: mouseposInCanvasX - centerX, y: mouseposInCanvasY - centerY });
+                } else if (delta > 0) {
+                    let offsetX = 10;
+                    let offsetY = 10;
+                    if (e.offsetX < centerX) {
+                        offsetX = -10;
+                    }
+                    if (e.offsetY < centerY) {
+                        offsetY = -10;
+                    }
+
+                    if (imageCenter.x + offsetX < 0) {
+                        offsetX = 0;
+                    }
+                    if (imageCenter.y + offsetY < 0) {
+                        offsetY = 0;
+                    }
+                    if (imageCenter.x + offsetX > canvasBox.width) {
+                        offsetX = 0;
+                    }
+                    if (imageCenter.y + offsetY > canvasBox.height) {
+                        offsetY = 0;
+                    }
+                    console.log(offsetX, offsetY)
+                    setimageCenter({
+                        x: imageCenter.x + offsetX,
+                        y: imageCenter.y + offsetY
+                    });
                 }
-
-                setMouseposInCanvasToCenter({
-                    x: mouseposInCanvasX - centerX,
-                    y: mouseposInCanvasY - centerY
-                });
                 setScaleFactor(newScaleFactor);
             }
         };
@@ -128,7 +131,31 @@ export default function CanvasMousePositionMoveSmooth(props: { src: string }) {
             canvas.removeEventListener("wheel", handleWheel);
         };
 
-    }, [image, isZoomIn, lastMousePos, mouseposInCanvasToCenter, scaleFactor]);
+
+        function draw() {
+            if (!image) return;
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            const canvasBox = canvas.getBoundingClientRect();
+
+            // 要把數值轉換成在canvas上的座標
+            const mouseposInCanvasXS = new Decimal(imageCenter.x).times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
+            const mouseposInCanvasYS = new Decimal(imageCenter.y).times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
+            const mouseposInCanvasX = Number(mouseposInCanvasXS);
+            const mouseposInCanvasY = Number(mouseposInCanvasYS);
+
+            console.log("draw ", imageCenter)
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.translate(mouseposInCanvasX, mouseposInCanvasY);
+            ctx.scale(scaleFactor, scaleFactor); // 調整縮放比例
+            ctx.translate(-mouseposInCanvasX, -mouseposInCanvasY);
+            ctx.drawImage(image, 0, 0);
+        }
+
+    }, [image, imageCenter, scaleFactor]);
 
     const handleZoomIn = () => {
         if (scaleFactor < maxScaleFactor) {

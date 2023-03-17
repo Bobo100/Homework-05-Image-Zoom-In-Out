@@ -1,8 +1,8 @@
 // Canvas 用來顯示圖片
 import { useEffect, useRef, useState } from "react";
-import { ZoomControls } from "./ZoomControls";
+import { ZoomControls } from "../ZoomControls";
 import { Decimal } from "decimal.js"
-import Scrollbar from "./Scrollbar";
+import Scrollbar from "../Scrollbar";
 export default function CanvasDrag(props: { src: string }) {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -78,6 +78,7 @@ export default function CanvasDrag(props: { src: string }) {
                             x: e.offsetX,
                             y: e.offsetY
                         });
+
                     } else {
                         let offsetX = 10;
                         let offsetY = 10;

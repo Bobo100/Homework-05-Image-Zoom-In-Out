@@ -27,12 +27,13 @@ export default function CanvasMousePositionMove(props: { src: string }) {
     }, [props.src]);
 
 
-    // 滑鼠在瀏覽器中的座標
+    // 滑鼠在瀏覽器中的座標 (UI顯示用)
     const [mousepos, setMousepos] = useState({ x: 0, y: 0 });
-    // 滑鼠在Canvas中的座標
+    // 滑鼠在Canvas中的座標 (UI顯示用)
     const [mouseposInCanvas, setMouseposInCanvas] = useState({ x: 0, y: 0 });
     // 滑鼠在Canvas中的座標 到 中心點 的距離
-    const [mouseposInCanvasToCenter, setMouseposInCanvasToCenter] = useState({ x: 0, y: 0 });
+    // 新的圖片中心點
+    const [imageCenter, setimageCenter] = useState({ x: 0, y: 0 });
 
     const maxScaleFactor = 3;
     const minScaleFactor = 1;
@@ -48,15 +49,8 @@ export default function CanvasMousePositionMove(props: { src: string }) {
 
         canvas.width = image.width;
         canvas.height = image.height;
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
 
-        ctx.transform(1, 0, 0, 1, centerX, centerY);
-        ctx.translate(mouseposInCanvasToCenter.x, mouseposInCanvasToCenter.y);
-        ctx.scale(scaleFactor, scaleFactor); // 調整縮放比例
-        ctx.translate(-mouseposInCanvasToCenter.x, -mouseposInCanvasToCenter.y);
-        ctx.drawImage(image, -centerX, -centerY);
-
+        draw();
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
@@ -68,16 +62,9 @@ export default function CanvasMousePositionMove(props: { src: string }) {
             }
 
             if (newScaleFactor !== scaleFactor) {
-                // 把滑鼠在瀏覽器中的位置轉換成在Canvas中的位置 並存放在state中
-                const canvasBox = canvas.getBoundingClientRect();
-                const mouseposInCanvasXS = new Decimal(e.offsetX).times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
-                const mouseposInCanvasYS = new Decimal(e.offsetY).times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
-                const mouseposInCanvasX = Number(mouseposInCanvasXS);
-                const mouseposInCanvasY = Number(mouseposInCanvasYS);
-
-                setMouseposInCanvasToCenter({
-                    x: mouseposInCanvasX - centerX,
-                    y: mouseposInCanvasY - centerY
+                setimageCenter({
+                    x: e.offsetX,
+                    y: e.offsetY
                 });
                 setScaleFactor(newScaleFactor);
             }
@@ -87,9 +74,6 @@ export default function CanvasMousePositionMove(props: { src: string }) {
 
         const handleMouseMove = (e: MouseEvent) => {
             const canvasBox = canvas.getBoundingClientRect();
-            // const mouseposInCanvasX = new Decimal(e.offsetX).times(canvas.width).dividedBy(canvasBox.width).toNumber();
-            // const mouseposInCanvasY = new Decimal(e.offsetY).times(canvas.height).dividedBy(canvasBox.height).toNumber();
-
             const mouseposInCanvasXS = new Decimal(e.offsetX).times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
             const mouseposInCanvasYS = new Decimal(e.offsetY).times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
             const mouseposInCanvasX = Number(mouseposInCanvasXS);
@@ -111,7 +95,31 @@ export default function CanvasMousePositionMove(props: { src: string }) {
             canvas.removeEventListener("wheel", handleWheel);
         };
 
-    }, [image, mouseposInCanvasToCenter, scaleFactor]);
+
+        function draw() {
+            if (!image) return;
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            const canvasBox = canvas.getBoundingClientRect();
+
+            // 要把數值轉換成在canvas上的座標
+            const mouseposInCanvasXS = new Decimal(imageCenter.x).times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
+            const mouseposInCanvasYS = new Decimal(imageCenter.y).times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
+            const mouseposInCanvasX = Number(mouseposInCanvasXS);
+            const mouseposInCanvasY = Number(mouseposInCanvasYS);
+
+            console.log("draw ", imageCenter)
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.translate(mouseposInCanvasX, mouseposInCanvasY);
+            ctx.scale(scaleFactor, scaleFactor); // 調整縮放比例
+            ctx.translate(-mouseposInCanvasX, -mouseposInCanvasY);
+            ctx.drawImage(image, 0, 0);
+        }
+
+    }, [image, imageCenter, scaleFactor]);
 
     const handleZoomIn = () => {
         if (scaleFactor < maxScaleFactor) {
