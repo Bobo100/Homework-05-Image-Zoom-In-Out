@@ -96,7 +96,6 @@ export default function CanvasMousePositionMoveSmooth(props: { src: string }) {
                     if (imageCenter.y + offsetY > canvasBox.height) {
                         offsetY = 0;
                     }
-                    console.log(offsetX, offsetY)
                     setimageCenter({
                         x: imageCenter.x + offsetX,
                         y: imageCenter.y + offsetY
