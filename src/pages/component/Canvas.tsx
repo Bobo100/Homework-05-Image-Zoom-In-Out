@@ -9,36 +9,57 @@ export default function Canvas(props: { src: string }) {
     const [scaleFactor, setScaleFactor] = useState(1);
     // const [lastTime, setLastTime] = useState(0);
 
+    // 
+    const [image, setImage] = useState<HTMLImageElement | null>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const img = new Image();
+        img.src = props.src;
+        setImage(img);
+    }, [props.src]);
+
+
     const maxScaleFactor = 3;
     const minScaleFactor = 0.2;
     // 設定小數點位數
     Decimal.set({ precision: 10 });
 
     useEffect(() => {
+        if (!image) return;
         const canvas = canvasRef.current;
-        if (!canvas) {
-            return;
-        }
+        if (!canvas) return;
         const ctx = canvas.getContext("2d");
-        if (!ctx) {
-            return;
-        }
+        if (!ctx) return;
 
-        const img = new Image();
-        img.src = props.src;
+        // const img = new Image();
+        // img.src = props.src;
 
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
+        // img.onload = () => {
+        //     canvas.width = img.width;
+        //     canvas.height = img.height;
 
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            ctx.translate(centerX, centerY);
-            ctx.scale(scaleFactor, scaleFactor);
+        //     const centerX = canvas.width / 2;
+        //     const centerY = canvas.height / 2;
+        //     ctx.translate(centerX, centerY);
+        //     ctx.scale(scaleFactor, scaleFactor);
+        //     // 繪製圖像
+        //     ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        // };
 
-            // 繪製圖像
-            ctx.drawImage(img, -img.width / 2, -img.height / 2);
-        };
+        canvas.width = image.width;
+        canvas.height = image.height;
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        ctx.translate(centerX, centerY);
+        ctx.scale(scaleFactor, scaleFactor);
+        // 繪製圖像
+        ctx.drawImage(image, -image.width / 2, -image.height / 2);
 
         /* 
         原始版本 (出現問題)
@@ -97,7 +118,7 @@ export default function Canvas(props: { src: string }) {
             canvas.removeEventListener("wheel", handleWheel);
         };
 
-    }, [props.src, scaleFactor]);
+    }, [image, scaleFactor]);
 
     const handleZoomIn = () => {
         if (scaleFactor < maxScaleFactor) {

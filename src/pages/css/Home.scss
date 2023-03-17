@@ -9,4 +9,7 @@ canvas {
     height: 480px;
 
     border: 1px solid white;
+    
+    -webkit-user-select: none;
+    user-select: none;
 }

@@ -4,6 +4,7 @@ import InputFile from "./component/InputFile";
 import CanvasMousePositionMove from './component/CanvasMousePositionMove'
 import "./css/Home.scss"
 import CanvasDrag from "./component/CanvasDrag";
+import CanvasMousePositionMoveSmooth from "./component/CanvasMousePositionMoveSmooth";
 export const Home = () => {
 
     const [imageData, setImageData] = useState("");
@@ -13,12 +14,14 @@ export const Home = () => {
 
     return (
         <div className="home">
-            {imageData && <h1>中心點縮放</h1>}
+            {/* {imageData && <h1>中心點縮放</h1>}
             {imageData &&
                 <Canvas src={imageData} />}
             {imageData && <h1>根據滑鼠位置縮放</h1>}
             {imageData && <CanvasMousePositionMove src={imageData} />}
-            {imageData && <h1>可拖曳</h1>}
+            {imageData && <h1>根據滑鼠位置縮放的平滑版</h1>}
+            {imageData && <CanvasMousePositionMoveSmooth src={imageData} />}
+            {imageData && <h1>可拖曳</h1>} */}
             {imageData && <CanvasDrag src={imageData} />}
 
             {!imageData && <div className="home__placeholder">Please select an image</div>}

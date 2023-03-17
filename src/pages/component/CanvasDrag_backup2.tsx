@@ -10,8 +10,12 @@ export default function CanvasDrag(props: { src: string }) {
     // 把圖片存放在state中
     const [image, setImage] = useState<HTMLImageElement | null>(null);
 
-    // 新的圖片中心點
-    const [imageCenter, setimageCenter] = useState({ x: 0, y: 0 });
+    // 滑鼠在瀏覽器中的座標
+    const [mousepos, setMousepos] = useState({ x: 0, y: 0 });
+    // 滑鼠在Canvas中的座標
+    const [mouseposInCanvas, setMouseposInCanvas] = useState({ x: 0, y: 0 });
+    // 滑鼠在Canvas中的座標 到 中心點 的距離
+    const [mouseposInCanvasToCenter, setMouseposInCanvasToCenter] = useState({ x: 0, y: 0 });
 
     // 記住滑鼠是否有按下 用來判斷是否要拖曳圖片
     const [isDragging, setisDragging] = useState(false);
@@ -45,6 +49,8 @@ export default function CanvasDrag(props: { src: string }) {
 
         canvas.width = image.width;
         canvas.height = image.height;
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
 
         draw();
 
@@ -58,9 +64,16 @@ export default function CanvasDrag(props: { src: string }) {
             }
 
             if (newScaleFactor !== scaleFactor) {
-                setimageCenter({
-                    x: e.offsetX,
-                    y: e.offsetY
+                // 把滑鼠在瀏覽器中的位置轉換成在Canvas中的位置 並存放在state中
+                const canvasBox = canvas.getBoundingClientRect();
+                const mouseposInCanvasXS = new Decimal(e.offsetX).times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
+                const mouseposInCanvasYS = new Decimal(e.offsetY).times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
+                const mouseposInCanvasX = Number(mouseposInCanvasXS);
+                const mouseposInCanvasY = Number(mouseposInCanvasYS);
+
+                setMouseposInCanvasToCenter({
+                    x: mouseposInCanvasX - centerX,
+                    y: mouseposInCanvasY - centerY
                 });
 
                 setScaleFactor(newScaleFactor);
@@ -100,13 +113,24 @@ export default function CanvasDrag(props: { src: string }) {
                 // 計算偏移量
                 const offsetX = new Decimal(e.offsetX).minus(lastPos.x).toNumber().toFixed(2);
                 const offsetY = new Decimal(e.offsetY).minus(lastPos.y).toNumber().toFixed(2);
-                const offsetXInCanvasN = Number(offsetX);
-                const offsetYInCanvasN = Number(offsetY);
+                // console.log(e.offsetX, lastPos.x, "offsetX: ", offsetX)
 
-                // 計算新的圖片中心點 - 原本的圖片中心點  - 偏移量
-                setimageCenter({
-                    x: imageCenter.x - offsetXInCanvasN,
-                    y: imageCenter.y - offsetYInCanvasN
+                // 將offset轉換成在Canvas中的座標
+                const offsetXInCanvas = new Decimal(offsetX)
+                    .times(canvas.width)
+                    .dividedBy(canvasBox.width)
+                    .toFixed(2);
+                const offsetYInCanvas = new Decimal(offsetY)
+                    .times(canvas.height)
+                    .dividedBy(canvasBox.height)
+                    .toFixed(2);
+                const offsetXInCanvasN = Number(offsetXInCanvas);
+                const offsetYInCanvasN = Number(offsetYInCanvas);
+
+                // 計算滑鼠在Canvas中的座標 = 滑鼠在Canvas中的座標 到 中心點 的距離 + 偏移量
+                setMouseposInCanvasToCenter({
+                    x: mouseposInCanvasToCenter.x - offsetXInCanvasN,
+                    y: mouseposInCanvasToCenter.y - offsetYInCanvasN
                 });
                 setLastMousePosition({ x: e.offsetX, y: e.offsetY });
             }
@@ -119,30 +143,31 @@ export default function CanvasDrag(props: { src: string }) {
             canvas.removeEventListener("mousemove", handleMouseMove);
         };
 
-        function draw() {
-            if (!image) return;
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-            const ctx = canvas.getContext("2d");
-            if (!ctx) return;
-            const canvasBox = canvas.getBoundingClientRect();
+    }, [image, scaleFactor, isDragging, firstDrag, mouseposInCanvasToCenter]);
 
-            // 要把數值轉換成在canvas上的座標
-            const mouseposInCanvasXS = new Decimal(imageCenter.x).times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
-            const mouseposInCanvasYS = new Decimal(imageCenter.y).times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
-            const mouseposInCanvasX = Number(mouseposInCanvasXS);
-            const mouseposInCanvasY = Number(mouseposInCanvasYS);
+    function draw() {
+        if (!image) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        const canvasBox = canvas.getBoundingClientRect();
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.translate(mouseposInCanvasX, mouseposInCanvasY);
-            ctx.scale(scaleFactor, scaleFactor); // 調整縮放比例
-            ctx.translate(-mouseposInCanvasX, -mouseposInCanvasY);
-            ctx.drawImage(image, 0, 0);
-        }
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
 
-    }, [image, scaleFactor, isDragging, firstDrag, imageCenter, lastMousePosition]);
+        // const mouseposInCanvasXS = new Decimal().times(canvas.width).dividedBy(canvasBox.width).toFixed(2);
+        // const mouseposInCanvasYS = new Decimal().times(canvas.height).dividedBy(canvasBox.height).toFixed(2);
+        // const mouseposInCanvasX = Number(mouseposInCanvasXS);
+        // const mouseposInCanvasY = Number(mouseposInCanvasYS);
 
-
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.transform(1, 0, 0, 1, centerX, centerY);
+        ctx.translate(mouseposInCanvasToCenter.x, mouseposInCanvasToCenter.y);
+        ctx.scale(scaleFactor, scaleFactor); // 調整縮放比例
+        ctx.translate(-mouseposInCanvasToCenter.x, -mouseposInCanvasToCenter.y);
+        ctx.drawImage(image, -centerX, -centerY);
+    }
 
     const handleZoomIn = () => {
         if (scaleFactor < maxScaleFactor) {
@@ -162,7 +187,7 @@ export default function CanvasDrag(props: { src: string }) {
 
     return (
         <div className="margin">
-            {/* <div className="flex center">
+            <div className="flex center">
                 <p>滑鼠在瀏覽器中的座標:</p>
                 <div className="margin">X: {mousepos.x}</div>
                 <div className="margin">Y: {mousepos.y}</div>
@@ -171,7 +196,7 @@ export default function CanvasDrag(props: { src: string }) {
                 <p>滑鼠在Canvas中的座標:</p>
                 <div className="margin">X: {mouseposInCanvas.x}</div>
                 <div className="margin">Y: {mouseposInCanvas.y}</div>
-            </div> */}
+            </div>
             <div className="relative">
                 <canvas ref={canvasRef} />
                 <Scrollbar className="vertical" min={minScaleFactor} max={maxScaleFactor} step={0.1} value={scaleFactor} onChange={handleChange} />
