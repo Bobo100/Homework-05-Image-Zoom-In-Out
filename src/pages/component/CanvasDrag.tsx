@@ -89,6 +89,8 @@ export default function CanvasDrag(props: { src: string }) {
                 return;
             }
 
+            if (scaleFactor === 1) return;            
+
             // 滑鼠要按住才能拖曳
             if (isDragging) {
                 // 如果是第一次拖曳，就不計算滑鼠的偏移量
@@ -103,6 +105,26 @@ export default function CanvasDrag(props: { src: string }) {
                 const offsetXInCanvasN = Number(offsetX);
                 const offsetYInCanvasN = Number(offsetY);
 
+                // 如果圖片的左邊超出canvas，就不要再往左邊拖曳
+                if (imageCenter.x - offsetXInCanvasN < 0) {
+                    setLastMousePosition({ x: e.offsetX, y: e.offsetY });
+                    return;
+                }
+                // 如果圖片的右邊超出canvas，就不要再往右邊拖曳
+                if (imageCenter.x - offsetXInCanvasN > canvasBox.width) {
+                    setLastMousePosition({ x: e.offsetX, y: e.offsetY });
+                    return;
+                }
+                // 如果圖片的上邊超出canvas，就不要再往上邊拖曳
+                if (imageCenter.y - offsetYInCanvasN < 0) {
+                    setLastMousePosition({ x: e.offsetX, y: e.offsetY });
+                    return;
+                }
+                // 如果圖片的下邊超出canvas，就不要再往下邊拖曳
+                if (imageCenter.y - offsetYInCanvasN > canvasBox.height) {
+                    setLastMousePosition({ x: e.offsetX, y: e.offsetY });
+                    return;
+                }
                 // 計算新的圖片中心點 - 原本的圖片中心點  - 偏移量
                 setimageCenter({
                     x: imageCenter.x - offsetXInCanvasN,
