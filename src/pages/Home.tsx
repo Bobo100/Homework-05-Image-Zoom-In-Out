@@ -5,6 +5,8 @@ import CanvasMousePositionMove from './component/CanvasMousePositionMove'
 import "./css/Home.scss"
 import CanvasDrag from "./component/CanvasDrag";
 import CanvasMousePositionMoveSmooth from "./component/CanvasMousePositionMoveSmooth";
+import image from "../image/dmitry-demidko-eBWzFKahEaU-unsplash.jpg"
+
 export const Home = () => {
 
     const [imageData, setImageData] = useState("");
@@ -12,8 +14,20 @@ export const Home = () => {
         setImageData(value);
     };
 
+    function downloadImage() {
+        // Create a new anchor element
+        const link = document.createElement('a');
+        // Set the href attribute of the anchor element to the image URL
+        link.href = image;
+        // Set the download attribute of the anchor element to the file name you want to save
+        link.download = 'dmitry-demidko-eBWzFKahEaU-unsplash.jpg';
+        // Trigger a click event on the anchor element
+        // This will automatically download the image
+        link.click();
+    }
     return (
         <div className="home">
+            <button onClick={downloadImage} >Download</button>
             {imageData && <h1>中心點縮放</h1>}
             {imageData &&
                 <Canvas src={imageData} />}
