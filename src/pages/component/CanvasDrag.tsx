@@ -4,7 +4,6 @@ import { ZoomControls } from "./ZoomControls";
 import { Decimal } from "decimal.js"
 import Scrollbar from "./Scrollbar";
 export default function CanvasDrag(props: { src: string }) {
-
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [scaleFactor, setScaleFactor] = useState(1);
     // 把圖片存放在state中
@@ -232,8 +231,6 @@ export default function CanvasDrag(props: { src: string }) {
         }
 
     }, [image, scaleFactor, isDragging, firstDrag, imageCenter, lastMousePosition]);
-
-
 
     const handleZoomIn = () => {
         if (scaleFactor < maxScaleFactor) {

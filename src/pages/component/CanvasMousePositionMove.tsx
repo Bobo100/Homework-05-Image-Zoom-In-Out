@@ -23,7 +23,9 @@ export default function CanvasMousePositionMove(props: { src: string }) {
         */
         const img = new Image();
         img.src = props.src;
-        setImage(img);
+        img.onload = () => {
+            setImage(img);
+        }
     }, [props.src]);
 
 
