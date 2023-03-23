@@ -50,7 +50,7 @@ export default function CanvasMousePositionMove(props: { src: string }) {
         canvas.width = image.width;
         canvas.height = image.height;
 
-        draw();
+        draw(canvas, ctx, image);
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
@@ -96,12 +96,7 @@ export default function CanvasMousePositionMove(props: { src: string }) {
         };
 
 
-        function draw() {
-            if (!image) return;
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-            const ctx = canvas.getContext("2d");
-            if (!ctx) return;
+        function draw(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, image: HTMLImageElement) {
             const canvasBox = canvas.getBoundingClientRect();
 
             // 要把數值轉換成在canvas上的座標

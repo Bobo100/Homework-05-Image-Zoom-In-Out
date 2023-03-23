@@ -25,6 +25,7 @@ export const Home = () => {
         // This will automatically download the image
         link.click();
     }
+    
     return (
         <div className="home">
             <button onClick={downloadImage} >Download</button>
