@@ -26,11 +26,7 @@ export default function CanvasDrag(props: { src: string }) {
     Decimal.set({ precision: 10 });
 
     // 第一次載入圖片
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+    useEffect(() => {       
         const img = new Image();
         img.src = props.src;
         img.onload = () => {

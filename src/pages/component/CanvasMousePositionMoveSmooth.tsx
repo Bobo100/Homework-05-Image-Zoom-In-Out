@@ -10,10 +10,6 @@ export default function CanvasMousePositionMoveSmooth(props: { src: string }) {
     const [image, setImage] = useState<HTMLImageElement | null>(null);
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
         /* 
         清除 Image:
         JavaScript 自動管理記憶體回收（garbage collection），因此當 img 不再被引用時，它會被自動清除。
